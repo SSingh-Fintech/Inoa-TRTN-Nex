@@ -1,0 +1,92 @@
+---------INOAGATEWAY-----------
+source s_beastlog { udp(ip(0.0.0.0) port(514)); };
+
+filter f_inoa { facility(1) and level(notice) and program('InoaGateway'); };
+
+destination d_beastinoa {
+  sql
+        (
+        type(mysql) username("syslog") password("Passw0rd#") database("BEASTLOG_DB") host("localhost") port("3306") table("Inoa_Log")
+        columns("LogDate","LogTime","SourceIP","SourceHostName", "FacilityCode","SeverityCode","Application","Description")
+        values("$YEAR-$MONTH-$DAY", "$HOUR:$MIN:$SEC" , "$SOURCEIP", "$HOST","$FACILITY_NUM", "$LEVEL_NUM" ,"$PROGRAM" , "$MSG" )
+        );
+};
+
+log { source(s_beastlog); filter(f_inoa); destination(d_beastinoa); };
+
+
+CREATE TABLE `Inoa_Log` (
+	`LogDate` DATE NULL,
+	`LogTime` TIME NULL,
+	`SourceIP` TEXT NULL,
+	`SourceHostName` TEXT NULL,
+	`FacilityCode` TEXT NULL,
+	`SeverityCode` TEXT NULL,
+	`Application` TEXT NULL,
+	`Description` TEXT NULL
+);
+
+select * from Inoa_Log where TIMESTAMP(LogDate,LogTime) >= $__timeFrom() AND  TIMESTAMP(LogDate,LogTime) <= $__timeTo()
+
+
+
+---------TRTNGATEWAY-----------
+source s_beastlog { udp(ip(0.0.0.0) port(514)); };
+
+CREATE TABLE `TRTN_Log` (
+	`LogDate` DATE NULL,
+	`LogTime` TIME NULL,
+	`SourceIP` TEXT NULL,
+	`SourceHostName` TEXT NULL,
+	`FacilityCode` TEXT NULL,
+	`SeverityCode` TEXT NULL,
+	`Application` TEXT NULL,
+	`Description` TEXT NULL
+);
+
+filter f_trtn { facility(1) and level(notice) and program('TRTNGATEWAY'); };
+
+destination d_TRTN {
+  sql
+        (
+        type(mysql) username("syslog") password("Passw0rd#") database("BEASTLOG_DB") host("localhost") port("3306") table("TRTN_Log")
+        columns("LogDate","LogTime","SourceIP","SourceHostName", "FacilityCode","SeverityCode","Application","Description")
+        values("$YEAR-$MONTH-$DAY", "$HOUR:$MIN:$SEC" , "$SOURCEIP", "$HOST","$FACILITY_NUM", "$LEVEL_NUM" ,"$PROGRAM" , "$MSG" )
+        );
+};
+
+log { source(s_beastlog); filter(f_trtn); destination(d_TRTN); };
+
+
+select * from TRTN_Log where TIMESTAMP(LogDate,LogTime) >= $__timeFrom() AND  TIMESTAMP(LogDate,LogTime) <= $__timeTo() order by LogDate,LogTime desc
+
+
+
+
+----NEXGATEWAY------
+CREATE TABLE `NEX_Log` (
+	`LogDate` DATE NULL,
+	`LogTime` TIME NULL,
+	`SourceIP` TEXT NULL,
+	`SourceHostName` TEXT NULL,
+	`FacilityCode` TEXT NULL,
+	`SeverityCode` TEXT NULL,
+	`Application` TEXT NULL,
+	`Description` TEXT NULL
+);
+
+filter f_nex { facility(1) and level(notice) and program('NEXGATEWAY'); };
+
+destination d_nex {
+  sql
+        (
+        type(mysql) username("syslog") password("Passw0rd#") database("BEASTLOG_DB") host("localhost") port("3306") table("NEX_Log")
+        columns("LogDate","LogTime","SourceIP","SourceHostName", "FacilityCode","SeverityCode","Application","Description")
+        values("$YEAR-$MONTH-$DAY", "$HOUR:$MIN:$SEC" , "$SOURCEIP", "$HOST","$FACILITY_NUM", "$LEVEL_NUM" ,"$PROGRAM" , "$MSG" )
+        );
+};
+
+log { source(s_beastlog); filter(f_nex); destination(d_nex); };
+
+
+select * from NEX_Log where TIMESTAMP(LogDate,LogTime) >= $__timeFrom() AND  TIMESTAMP(LogDate,LogTime) <= $__timeTo() order by LogDate,LogTime desc
